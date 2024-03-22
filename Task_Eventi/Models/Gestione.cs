@@ -9,6 +9,7 @@ namespace Task_Eventi.Models
 {
     internal class Gestione
     {
+        #region Singleton
         // creazione singleton
         private static Gestione? istanza;
         public static Gestione getIstanza()
@@ -19,6 +20,9 @@ namespace Task_Eventi.Models
             return istanza;
         }
         private Gestione() { }
+        #endregion
+
+        #region Menu
         public void Menu()
         {
             Console.ForegroundColor = ConsoleColor.Green;
@@ -118,6 +122,7 @@ namespace Task_Eventi.Models
                 
             }
         }
+        #endregion
 
         #region Eventi
         private List<Evento> GetEventiList()
