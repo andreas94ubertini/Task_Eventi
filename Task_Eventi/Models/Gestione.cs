@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static Azure.Core.HttpHeader;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace Task_Eventi.Models
 {
@@ -34,27 +36,31 @@ namespace Task_Eventi.Models
                 Console.WriteLine("==================================");
                 Console.WriteLine("-1- Gestisci eventi");
                 Console.WriteLine("-2- Gestisci partecipanti");
-                Console.WriteLine("-3- Registra risorsa per un evento");
+                Console.WriteLine("-3- Gestici risorsa per un evento");
+                Console.WriteLine("-4- Esporta i dati in CSV");
+                Console.WriteLine("-5- Esci");
                 Console.WriteLine("==================================");
 
                 string? input = Console.ReadLine();
                 switch (input)
                 {
-                    case"1":
+                    case "1":
                         {
                             Console.WriteLine("-1- Aggiungi un nuovo evento");
                             Console.WriteLine("-2- Modifica un evento esistente");
                             Console.WriteLine("-3- Elimina un evento");
                             string? inputEvento = Console.ReadLine();
-                            if(inputEvento == "1")
+                            if (inputEvento == "1")
                             {
                                 Console.WriteLine("Registrazione evento");
                                 this.ManageEvento(false);
-                            }else if(inputEvento == "2")
+                            }
+                            else if (inputEvento == "2")
                             {
                                 Console.WriteLine("Modifica evento");
                                 this.ManageEvento(true);
-                            }else if(inputEvento == "3")
+                            }
+                            else if (inputEvento == "3")
                             {
                                 Console.WriteLine("Modifica evento");
                                 this.DeleteEvento();
@@ -96,7 +102,8 @@ namespace Task_Eventi.Models
                             }
                             break;
                         }
-                    case "3": {
+                    case "3":
+                        {
                             Console.WriteLine("-1- Aggiungi una nuova Risorsa");
                             Console.WriteLine("-2- Elimina una Risorsa");
                             string? inputRis = Console.ReadLine();
@@ -117,9 +124,25 @@ namespace Task_Eventi.Models
 
                             }
                             break;
-                    }
+                        }
+                    case "4":
+                        {
+                            this.ExportCsv();
+                            break;
+                        }
+                    case "5":
+                        {
+                            Console.WriteLine("Chiusa applicazione...");
+                            active = false;
+                            break;
+                        }
+                    default:
+                        {
+                            Console.WriteLine("Comando non valido, riprova!");
+                            break;
+                        }
                 }
-                
+
             }
         }
         #endregion
@@ -134,7 +157,8 @@ namespace Task_Eventi.Models
                 {
                     list = db.Eventos.ToList();
                     return list;
-                }catch(Exception ex)
+                }
+                catch (Exception ex)
                 {
                     Console.WriteLine(ex.Message);
                 }
@@ -258,7 +282,7 @@ namespace Task_Eventi.Models
             List<Partecipante> list = new List<Partecipante>();
             using (var db = new AccTaskEventiContext())
             {
-                    list = db.Partecipantes.ToList();
+                list = db.Partecipantes.ToList();
 
             }
             return list;
@@ -333,7 +357,7 @@ namespace Task_Eventi.Models
                             Contatto = contatto,
                             CodFis = codFis,
                             EventoRif = convertedID
-                    };
+                        };
                         db.Partecipantes.Add(p);
                         db.SaveChanges();
                         Console.WriteLine("Inserimento avvenuto con successo");
@@ -385,7 +409,7 @@ namespace Task_Eventi.Models
         private List<Risorsa> GetRisorseListByEv(int evID)
         {
             List<Risorsa> list = new List<Risorsa>();
-            using(var db = new AccTaskEventiContext())
+            using (var db = new AccTaskEventiContext())
             {
                 try
                 {
@@ -393,6 +417,20 @@ namespace Task_Eventi.Models
                     list = e.Risorsas.ToList();
                 }
                 catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
+            }
+            return list;
+        }
+        private List<Risorsa> GetAllRisorse()
+        {
+            List<Risorsa> list = new List<Risorsa>();
+            using(var db = new AccTaskEventiContext())
+            {
+                try {
+                    list = db.Risorsas.ToList();
+                }catch (Exception ex)
                 {
                     Console.WriteLine(ex.Message);
                 }
@@ -407,7 +445,7 @@ namespace Task_Eventi.Models
             }
             Console.WriteLine("Inserisci l'ID dell'evento per aggiungere una risorsa");
             string? evID = Console.ReadLine();
-            using(var db =new AccTaskEventiContext())
+            using (var db = new AccTaskEventiContext())
             {
                 try
                 {
@@ -422,7 +460,7 @@ namespace Task_Eventi.Models
                     Console.WriteLine("Prezzo della risorsa");
                     string? prezzo = Console.ReadLine();
                     decimal convertedPrez = Convert.ToDecimal(prezzo);
-                    
+
                     Risorsa r = new Risorsa()
                     {
                         Tipo = tipo,
@@ -434,7 +472,8 @@ namespace Task_Eventi.Models
                     db.Risorsas.Add(r);
                     db.SaveChanges();
                     Console.WriteLine("Risorsa aggiunta");
-                }catch (Exception ex)
+                }
+                catch (Exception ex)
                 {
                     Console.WriteLine(ex.Message);
                 }
@@ -453,15 +492,15 @@ namespace Task_Eventi.Models
             {
                 try
                 {
-      
+
                     int convertedEvID = Convert.ToInt32(evID);
-                    Console.WriteLine("Inserisci ID della risorsa da eliminare");
-                    string? risorsaID = Console.ReadLine();
-                    int convertedRisID = Convert.ToInt32(risorsaID);
                     foreach (Risorsa r in GetRisorseListByEv(convertedEvID))
                     {
                         Console.WriteLine($"ID: {r.RisorsaId}, TIPO: {r.Tipo}, Qt: {r.Qt}, PREZZO: {r.Costo}, FORNITORE: {r.Fornitore}");
                     }
+                    Console.WriteLine("Inserisci ID della risorsa da eliminare");
+                    string? risorsaID = Console.ReadLine();
+                    int convertedRisID = Convert.ToInt32(risorsaID);
                     Risorsa toDelete = db.Risorsas.Single(r => r.RisorsaId == convertedRisID);
                     db.Risorsas.Remove(toDelete);
                     db.SaveChanges();
@@ -476,5 +515,57 @@ namespace Task_Eventi.Models
 
 
         #endregion
+
+        #region CSV
+
+        private void ExportCsv()
+        {
+            string? path = Path.GetDirectoryName(typeof(Program).Assembly.Location);
+            string fileNameEventi = "\\SavedData\\eventi.txt";
+            string fileNameRisorse = "\\SavedData\\risorse.txt";
+            string fileNamePartecipanti = "\\SavedData\\partecipanti.txt";
+            try
+            {
+                using (StreamWriter sw = new StreamWriter(path + fileNamePartecipanti))
+                {
+                    if (GetPartecipanti().Count > 0)
+                    {
+                        foreach (Partecipante p in GetPartecipanti())
+                        {
+                            sw.WriteLine($"{p.PartecipanteId};{p.Nome};{p.Cognome};{p.Contatto};{p.CodFis};{p.EventoRif}");
+                        }
+                    }
+                }
+                using (StreamWriter sw = new StreamWriter(path + fileNameEventi))
+                {
+                    if (GetEventiList().Count > 0)
+                    {
+                        foreach (Evento ev in GetEventiList())
+                        {
+                            sw.WriteLine($"{ev.EventoId};{ev.Nome};{ev.Descrizione};{ev.DataEvento};{ev.Luogo};{ev.CapMax}");
+                        }
+                    }
+                }
+                using (StreamWriter sw = new StreamWriter(path + fileNameRisorse))
+                {
+                    if (GetAllRisorse().Count > 0)
+                    {
+                        foreach (Risorsa r in GetAllRisorse())
+                        {
+                            sw.WriteLine($"{r.RisorsaId};{r.Tipo};{r.Qt};{r.Costo};{r.Fornitore};{r.EventoRif}");
+                        }
+                    }
+                }
+                Console.WriteLine("Esportazione completata");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+
+        }
+
+        #endregion
+
     }
 }
