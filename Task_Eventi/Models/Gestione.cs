@@ -21,12 +21,15 @@ namespace Task_Eventi.Models
         private Gestione() { }
         public void Menu()
         {
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine("  ____    ___   _____ ______  ____   ___   ____     ___        ___  __ __    ___  ____   ______  ____ \n /    |  /  _] / ___/|      ||    | /   \\ |    \\   /  _]      /  _]|  |  |  /  _]|    \\ |      ||    |\n|   __| /  [_ (   \\_ |      | |  | |     ||  _  | /  [_      /  [_ |  |  | /  [_ |  _  ||      | |  | \n|  |  ||    _] \\__  ||_|  |_| |  | |  O  ||  |  ||    _]    |    _]|  |  ||    _]|  |  ||_|  |_| |  | \n|  |_ ||   [_  /  \\ |  |  |   |  | |     ||  |  ||   [_     |   [_ |  :  ||   [_ |  |  |  |  |   |  | \n|     ||     | \\    |  |  |   |  | |     ||  |  ||     |    |     | \\   / |     ||  |  |  |  |   |  | \n|___,_||_____|  \\___|  |__|  |____| \\___/ |__|__||_____|    |_____|  \\_/  |_____||__|__|  |__|  |____|\n                                                                                                      ");
+
             bool active = true;
             while (active)
             {
                 Console.WriteLine("==================================");
                 Console.WriteLine("-1- Gestisci eventi");
-                Console.WriteLine("-2- Registra partecipanti ad un evento");
+                Console.WriteLine("-2- Gestisci partecipanti");
                 Console.WriteLine("-3- Registra risorsa per un evento");
                 Console.WriteLine("==================================");
 
@@ -51,6 +54,35 @@ namespace Task_Eventi.Models
                             {
                                 Console.WriteLine("Modifica evento");
                                 this.DeleteEvento();
+
+                            }
+                            else
+                            {
+                                Console.WriteLine("Comando non valido");
+
+                            }
+                            break;
+                        }
+                    case "2":
+                        {
+                            Console.WriteLine("-1- Aggiungi un nuovo Partecipante");
+                            Console.WriteLine("-2- Modifica un Partecipante esistente");
+                            Console.WriteLine("-3- Elimina un Partecipante");
+                            string? inputPartecipante = Console.ReadLine();
+                            if (inputPartecipante == "1")
+                            {
+                                Console.WriteLine("Registrazione partecipante");
+                                this.ManagePartecipante(false);
+                            }
+                            else if (inputPartecipante == "2")
+                            {
+                                Console.WriteLine("Modifica partecipante");
+                                this.ManagePartecipante(true);
+                            }
+                            else if (inputPartecipante == "3")
+                            {
+                                Console.WriteLine("Elimina partecipante");
+                                this.DeletePartecipante();
 
                             }
                             else
@@ -97,17 +129,18 @@ namespace Task_Eventi.Models
                 }
                 Console.WriteLine("Inserisci l'ID dell'evento da modificare");
 
-                string? idToFind = Console.ReadLine();
-                convertedID = Convert.ToInt32(idToFind);
+
             }
             using (var db = new AccTaskEventiContext())
             {
-                if (mode == true)
-                {
-                    modifiedEv = db.Eventos.Single(ev => ev.EventoId == convertedID);
-                }
                 try
                 {
+                    if (mode == true)
+                    {
+                        string? idToFind = Console.ReadLine();
+                        convertedID = Convert.ToInt32(idToFind);
+                        modifiedEv = db.Eventos.Single(ev => ev.EventoId == convertedID);
+                    }
                     Console.WriteLine($"{toAdd}Nome evento:");
                     string? nomeEvento = Console.ReadLine();
                     Console.WriteLine($"{toAdd}Descrizione evento:");
@@ -189,6 +222,135 @@ namespace Task_Eventi.Models
             }
 
         }
+        #endregion
+
+        #region Partecipanti
+
+        private List<Partecipante> GetPartecipanti()
+        {
+            List<Partecipante> list = new List<Partecipante>();
+            using (var db = new AccTaskEventiContext())
+            {
+                    list = db.Partecipantes.ToList();
+
+            }
+            return list;
+        }
+        private void ManagePartecipante(bool mode)
+        {
+            Partecipante modifiedP = new Partecipante();
+            int convertedID = 0;
+            string toAdd = "";
+
+            using (var db = new AccTaskEventiContext())
+            {
+
+                if (mode == true)
+                {
+
+                    if (db.Partecipantes.ToList().Count > 0)
+                    {
+                        foreach (Partecipante p in GetPartecipanti())
+                        {
+                            Console.WriteLine($"ID: {p.PartecipanteId}, NOME: {p.Nome}, COGNOME: {p.Cognome}, Cf: {p.CodFis}");
+                        }
+                        Console.WriteLine("Inserisci l'ID del partecipante da modificare");
+                    }
+
+
+                }
+                try
+                {
+
+                    if (mode == true)
+                    {
+                        toAdd = "Modifica ";
+
+                        string? idToFind = Console.ReadLine();
+                        convertedID = Convert.ToInt32(idToFind);
+                        modifiedP = db.Partecipantes.Single(par => par.PartecipanteId == convertedID);
+                    }
+                    Console.WriteLine($"{toAdd}Nome partecipante:");
+                    string? nome = Console.ReadLine();
+                    Console.WriteLine($"{toAdd}Cognome partecipante:");
+                    string? cognome = Console.ReadLine();
+                    Console.WriteLine($"{toAdd}Contatto partecipante:");
+                    string? contatto = Console.ReadLine();
+                    Console.WriteLine($"{toAdd}Codice Fiscale partecipante:");
+                    string? codFis = Console.ReadLine();
+                    Console.WriteLine($"{toAdd}Evento participante:");
+                    foreach (Evento e in GetEventiList())
+                    {
+                        Console.WriteLine($"ID: {e.EventoId}, NOME: {e.Nome}, LUOGO: {e.Luogo}, DATA: {e.DataEvento}");
+                    }
+                    Console.WriteLine("Inserisci l'ID dell'evento da aggiungere");
+                    string? eventoRif = Console.ReadLine();
+                    convertedID = Convert.ToInt32(eventoRif);
+                    if (mode == true)
+                    {
+                        modifiedP.Nome = nome;
+                        modifiedP.Cognome = cognome;
+                        modifiedP.Contatto = contatto;
+                        modifiedP.CodFis = codFis;
+                        modifiedP.EventoRif = convertedID;
+                        db.Entry(modifiedP).State = EntityState.Modified;
+                        db.SaveChanges();
+                        Console.WriteLine("Partecipante Aggiornato");
+                    }
+                    else
+                    {
+                        Partecipante p = new Partecipante()
+                        {
+                            Nome = nome,
+                            Cognome = cognome,
+                            Contatto = contatto,
+                            CodFis = codFis,
+                            EventoRif = convertedID
+                    };
+                        db.Partecipantes.Add(p);
+                        db.SaveChanges();
+                        Console.WriteLine("Inserimento avvenuto con successo");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Errore: {ex.Message}");
+                }
+            }
+        }
+        private void DeletePartecipante()
+        {
+            if (GetPartecipanti().Count > 0)
+            {
+                foreach (Partecipante p in GetPartecipanti())
+                {
+                    Console.WriteLine($"ID: {p.PartecipanteId}, NOME: {p.Nome}, COGNOME: {p.Cognome}, Cf: {p.CodFis}");
+                }
+                Console.WriteLine("Inserisci l'ID del partecipante da eliminare");
+                string? toDelete = Console.ReadLine();
+                int convertedId = Convert.ToInt32(toDelete);
+                using (var db = new AccTaskEventiContext())
+                {
+                    try
+                    {
+                        Partecipante p = db.Partecipantes.Single(pa => pa.PartecipanteId == convertedId);
+                        db.Partecipantes.Remove(p);
+                        db.SaveChanges();
+                        Console.WriteLine("Partecipante rimosso");
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine(ex.Message);
+                    }
+                }
+            }
+            else
+            {
+                Console.WriteLine("Nessun partecipante presente");
+            }
+        }
+
+
         #endregion
     }
 }

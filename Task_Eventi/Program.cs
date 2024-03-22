@@ -1,4 +1,5 @@
-﻿using Task_Eventi.Models;
+﻿using System.Drawing;
+using Task_Eventi.Models;
 
 namespace Task_Eventi
 {
@@ -7,6 +8,7 @@ namespace Task_Eventi
         static void Main(string[] args)
         {
             Gestione.getIstanza().Menu();
+            
         }
     }
 }
