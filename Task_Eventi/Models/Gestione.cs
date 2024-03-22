@@ -64,6 +64,8 @@ namespace Task_Eventi.Models
                 
             }
         }
+
+        #region Eventi
         private List<Evento> GetEventiList()
         {
             List<Evento> list = new List<Evento>();
@@ -187,6 +189,6 @@ namespace Task_Eventi.Models
             }
 
         }
-
+        #endregion
     }
 }
