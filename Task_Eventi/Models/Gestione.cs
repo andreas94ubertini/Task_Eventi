@@ -104,7 +104,7 @@ namespace Task_Eventi.Models
                             else if (inputRis == "2")
                             {
                                 Console.WriteLine("Elimina risorsa");
-                                this.ManagePartecipante(true);
+                                this.DeleteRisorsa();
                             }
 
                             else
