@@ -92,6 +92,28 @@ namespace Task_Eventi.Models
                             }
                             break;
                         }
+                    case "3": {
+                            Console.WriteLine("-1- Aggiungi una nuova Risorsa");
+                            Console.WriteLine("-2- Elimina una Risorsa");
+                            string? inputRis = Console.ReadLine();
+                            if (inputRis == "1")
+                            {
+                                Console.WriteLine("Registrazione risorsa");
+                                this.ManageRisorsa();
+                            }
+                            else if (inputRis == "2")
+                            {
+                                Console.WriteLine("Elimina risorsa");
+                                this.ManagePartecipante(true);
+                            }
+
+                            else
+                            {
+                                Console.WriteLine("Comando non valido");
+
+                            }
+                            break;
+                    }
                 }
                 
             }
@@ -347,6 +369,103 @@ namespace Task_Eventi.Models
             else
             {
                 Console.WriteLine("Nessun partecipante presente");
+            }
+        }
+
+
+        #endregion
+
+        #region Risorse
+
+        private List<Risorsa> GetRisorseListByEv(int evID)
+        {
+            List<Risorsa> list = new List<Risorsa>();
+            using(var db = new AccTaskEventiContext())
+            {
+                try
+                {
+                    Evento e = db.Eventos.Include(ev => ev.Risorsas).Single(ev => ev.EventoId == evID);
+                    list = e.Risorsas.ToList();
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
+            }
+            return list;
+        }
+        private void ManageRisorsa()
+        {
+            foreach (Evento e in GetEventiList())
+            {
+                Console.WriteLine($"ID: {e.EventoId}, NOME: {e.Nome}, LUOGO: {e.Luogo}, DATA: {e.DataEvento}");
+            }
+            Console.WriteLine("Inserisci l'ID dell'evento per aggiungere una risorsa");
+            string? evID = Console.ReadLine();
+            using(var db =new AccTaskEventiContext())
+            {
+                try
+                {
+                    int convertedEvID = Convert.ToInt32(evID);
+                    Console.WriteLine("Tipo di risorsa");
+                    string? tipo = Console.ReadLine();
+                    Console.WriteLine("Qt risorsa");
+                    string? qt = Console.ReadLine();
+                    int convertedQt = Convert.ToInt32(qt);
+                    Console.WriteLine("Fornitore risorsa");
+                    string? fornitore = Console.ReadLine();
+                    Console.WriteLine("Prezzo della risorsa");
+                    string? prezzo = Console.ReadLine();
+                    decimal convertedPrez = Convert.ToDecimal(prezzo);
+                    
+                    Risorsa r = new Risorsa()
+                    {
+                        Tipo = tipo,
+                        Costo = convertedPrez,
+                        Fornitore = fornitore,
+                        Qt = convertedQt,
+                        EventoRif = convertedEvID
+                    };
+                    db.Risorsas.Add(r);
+                    db.SaveChanges();
+                    Console.WriteLine("Risorsa aggiunta");
+                }catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
+            }
+
+        }
+        private void DeleteRisorsa()
+        {
+            foreach (Evento e in GetEventiList())
+            {
+                Console.WriteLine($"ID: {e.EventoId}, NOME: {e.Nome}, LUOGO: {e.Luogo}, DATA: {e.DataEvento}");
+            }
+            Console.WriteLine("Inserisci l'ID dell'evento per eliminare una risorsa");
+            string? evID = Console.ReadLine();
+            using (var db = new AccTaskEventiContext())
+            {
+                try
+                {
+      
+                    int convertedEvID = Convert.ToInt32(evID);
+                    Console.WriteLine("Inserisci ID della risorsa da eliminare");
+                    string? risorsaID = Console.ReadLine();
+                    int convertedRisID = Convert.ToInt32(risorsaID);
+                    foreach (Risorsa r in GetRisorseListByEv(convertedEvID))
+                    {
+                        Console.WriteLine($"ID: {r.RisorsaId}, TIPO: {r.Tipo}, Qt: {r.Qt}, PREZZO: {r.Costo}, FORNITORE: {r.Fornitore}");
+                    }
+                    Risorsa toDelete = db.Risorsas.Single(r => r.RisorsaId == convertedRisID);
+                    db.Risorsas.Remove(toDelete);
+                    db.SaveChanges();
+                    Console.WriteLine("Risorsa Eliminata");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
             }
         }
 
